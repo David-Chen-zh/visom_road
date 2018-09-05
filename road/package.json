@@ -13,6 +13,7 @@
     "ii": "npm install --registry https://registry.npm.taobao.org"
   },
   "dependencies": {
+    "forge-apis": "^0.4.3",
     "axios": "^0.17.1",
     "cross-env": "^5.0.0",
     "egg": "^2.1.0",
@@ -24,6 +25,7 @@
     "egg-view-vue-ssr": "^3.0.2",
     "element-ui": "^2.0.8",
     "extend": "~3.0.0",
+    "forge-apis": "^0.4.3",
     "lodash": "^4.17.4",
     "mint-ui": "^2.2.9",
     "mockjs": "^1.0.1-beta3",

@@ -16,8 +16,7 @@ module.exports = app => {
   router.get('/*', app.controller.app.index);
 
 
-  router.get('/api/forge/modelderivative/jobs', app.controller.jobs.use);
-  router.post('/api/forge/modelderivative/jobs', app.controller.jobs.create);
+  router.post('/api/forge/modelderivative/jobs', auth, controller.jobs.create);
 
 
 };

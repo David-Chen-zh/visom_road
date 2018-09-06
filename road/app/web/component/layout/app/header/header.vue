@@ -1,10 +1,7 @@
 <template>
   <header class="header">
     <div class="container"><h1>
-      <a href="" class="router-link-active">Egg + Vue</a></h1>
-      <ul class="nav">
-        <li class="nav-item"><a href="/" :class="{'active' : selectedMenu === '/'}">Single-Page</a></li>
-      </ul>
+      <a href="" class="router-link-active">Forge</a></h1>
     </div>
   </header>
 </template>
@@ -13,16 +10,16 @@
 </style>
 <script type="text/babel">
   export default{
-    data(){
+    data() {
       return {
-        selectedMenu : '/app'
-      }
+        selectedMenu: '/app'
+      };
     },
-    computed:{
+    computed: {
 
     },
-    mounted(){
-      this.selectedMenu = window.location.pathname.toLowerCase().replace(/\/$/,'');
+    mounted() {
+      this.selectedMenu = window.location.pathname.toLowerCase().replace(/\/$/, '');
     }
-  }
+  };
 </script>

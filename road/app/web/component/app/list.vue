@@ -1,63 +1,64 @@
 <template>
-  <div style="font-size: 24px; text-align: center">
-    <div class="container smart-container">
-      <div class="row row-offcanvas row-offcanvas-right">
-        <div class="col-xs-12 col-sm-9">
-          <ul class="smart-artiles" id="articleList">
-            <li v-for="item in articleList" :key="item.id">
-              <div class="point">+{{item.hits}}</div>
-              <div class="card">
-                <h2><router-link :to="'/detail/'+item.id" class="nav-item-a">{{item.title}}</router-link></h2>
-                <div>
-                  <ul class="actions">
-                    <li>
-                      <time class="timeago">{{item.moduleName}}</time>
-                    </li>
-                    <li class="tauthor">
-                      <a href="#" target="_blank" class="get">Sky</a>
-                    </li>
-                    <li><a :href="item.url" target="_blank">原文</a></li>
-                    <li>
-                      <span class="timeago">{{item.summary}}</span>
-                    </li>
-                    <li>
-                      <span class="timeago"></span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <div id="pagerBottom" class="smart-pager" v-if="isLoading">
-            <img src="../../asset/images/loading.gif">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div>
+<el-row>
+  <el-col :span="8">
+    <el-button type="primary" @click="createFile">创建文件夹</el-button>
+    <el-dialog :show="showDialog">
+    </el-dialog>
+    <el-tree
+  :props="props1"
+  :load="loadNode1"
+  lazy
+  show-checkbox>
+</el-tree>
+  </el-col>
+  <el-col :span="16">
+asd
+  </el-col>
+</el-row>
+
+</div>
 </template>
 <style>
 
 </style>
 <script type="text/babel">
   export default{
+    data() {
+      return {
+        props1: {
+          label: 'name',
+          children: 'zones',
+          isLeaf: 'leaf'
+        },
+        showDialog: false
+      };
+    },
     computed: {
-      isLoading(){
-       return false;
+  
+    },
+  
+    methods: {
+      createFile() {
+        this.showDialog = true;
       },
-      articleList() {
-        return this.$store.state.articleList;
+      loadNode1(node, resolve) {
+        if (node.level === 0) {
+          return resolve([{ name: 'region' }]);
+        }
+        if (node.level > 1) return resolve([]);
+
+        setTimeout(() => {
+          const data = [{
+            name: 'leaf',
+            leaf: true
+          }, {
+            name: 'zone'
+          }];
+
+          resolve(data);
+        }, 500);
       }
-    },
-    preFetch ({ state, dispatch, commit }) {
-      return Promise.all([
-        dispatch('FETCH_ARTICLE_LIST')
-      ])
-    },
-    beforeMount() {
-      return Promise.all([
-        this.$store.dispatch('FETCH_ARTICLE_LIST')
-      ]);
     }
-  }
+  };
 </script>

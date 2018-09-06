@@ -22,7 +22,7 @@
     "egg-scripts": "^2.9.1",
     "egg-validate": "^1.0.0",
     "egg-view-vue-ssr": "^3.0.2",
-    "element-ui": "^2.0.8",
+    "element-ui": "^2.4.6",
     "extend": "~3.0.0",
     "forge-apis": "^0.4.3",
     "lodash": "^4.17.4",

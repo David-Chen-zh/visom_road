@@ -5,8 +5,12 @@ import app from './app.vue';
 import App from 'app';
 import Layout from 'component/layout/app';
 
-App.component(Layout.name, Layout);
+import Vue from 'vue';
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 
+App.component(Layout.name, Layout);
+Vue.use(ElementUI);
 sync(store, router);
 
 export default App.init({

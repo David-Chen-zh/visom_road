@@ -5,7 +5,7 @@ class TokenController extends Controller {
 
   async create(ctx) {
     try {
-      const token = ctx.app.getPublicToken();
+      const token = await ctx.app.getPublicToken();
       ctx.body = {
         access_token: token.access_token,
         expires_in: token.expires_in

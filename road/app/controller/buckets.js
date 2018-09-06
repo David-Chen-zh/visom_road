@@ -71,8 +71,9 @@ class BucketsController extends Controller {
     try {
       const data = await readFile(target);
       console.log(data.length);
+
       // Upload an object to bucket using [ObjectsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/ObjectsApi.md#uploadObject).
-      await new ObjectsApi().uploadObject(stream.fields.bucketKey, filename, data.length, data, {}, ctx.app.getClient(), ctx.request.oauth_token);
+      await new ObjectsApi().uploadObject(stream.fields.bucketKey, filename, data.length, data, {}, ctx.app.getClient(), ctx.request.body.oauth_token);
       ctx.body = {};
     } catch (err) {
       console.log(err);

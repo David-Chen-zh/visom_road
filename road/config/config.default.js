@@ -37,19 +37,12 @@ module.exports = app => {
 
   exports.version = '0.2.0';
 
-  exports.configurations = [
+  exports.forge =
     {
-      type: 'node',
-      request: 'launch',
-      name: '启动程序',
-      program: '${workspaceFolder}\\start.js',
-      env: {
-        FORGE_CLIENT_ID: 'u1ucMf0l7hEEGdKYOq8QjXmKGGGAYtHF',
-        FORGE_CLIENT_SECRET: '4rEga7zTurW7MVWM',
-        FORGE_CALLBACK_URL: 'http://www.wiseom.cn'
-      }
-    }
-  ];
+      clientId: 'u1ucMf0l7hEEGdKYOq8QjXmKGGGAYtHF',
+      clientSecret: '4rEga7zTurW7MVWM',
+      callbackUrl: 'http://www.wiseom.cn'
+    };
 
   exports.scopes = {
     // Required scopes for the server-side application

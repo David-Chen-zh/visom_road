@@ -42,6 +42,7 @@ class BucketsController extends Controller {
         ctx.body = err;
       }
     }
+    return ctx.body;
   }
 
   async create(ctx) {

@@ -15,11 +15,12 @@
 </el-dialog>
     
     <el-tree
-  :props="props1"
+  :props="buckets"
   :load="loadNode1"
   lazy
   show-checkbox>
 </el-tree>
+
   </el-col>
   <el-col :span="16">
         <div style="height: 700px; width: 100%" 
@@ -46,53 +47,45 @@ export default{
       },
       dialogVisible: false,
       input: '',
-      buckets: []
+      buckets: [],
+      bucket: {}
     };
   },
   mounted() {
     this.fetch();
-
     this.selectObject();
   },
   computed: {
   },
-
   methods: {
     createFiles() {
       this.$http.post('/api/forge/oss/buckets', {
         bucketKey: this.input,
-      }).then(res => {
-        if (res.data.errcode === 0) {
-          this.$message({
-            message: '创建成功',
-            type: 'success'
-          });
-        } else {
-          this.$message({
-            message: '创建失败',
-            type: 'warning'
-          });
-        }
       });
       console.log('创建文件夹', this.input);
       this.dialogVisible = false;
-
     },
-    handleClose() {
 
+    handleClose() {
       this.dialogVisible = false;
     },
+
     fetch() {
       this.$http.get('/api/forge/oss/buckets').then(res => {
-        const buckets = res.data.list;
+        this.buckets = [];
+        res.data.forEach(ele => {
+          this.buckets.push({
+            file: ele,
+          });
+        });
       });
     },
+
     loadNode1(node, resolve) {
       if (node.level === 0) {
         return resolve([{ name: 'region' }]);
       }
       if (node.level > 1) return resolve([]);
-
       setTimeout(() => {
         const data = [{
           name: 'leaf',
@@ -100,7 +93,6 @@ export default{
         }, {
           name: 'zone'
         }];
-
         resolve(data);
       }, 500);
     },

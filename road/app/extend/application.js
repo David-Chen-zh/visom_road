@@ -1,15 +1,13 @@
 const { AuthClientTwoLegged } = require('forge-apis');
 
-const config = require('../../config');
-
 /**
  * Initializes a Forge client for 2-legged authentication.
  * @param {string[]} scopes List of resource access scopes.
  * @returns {AuthClientTwoLegged} 2-legged authentication client.
  */
 function getClient(scopes) {
-  const { client_id, client_secret } = config.credentials;
-  return new AuthClientTwoLegged(client_id, client_secret, scopes || config.scopes.internal);
+  const { clientId, clientSecret } = this.config.forge;
+  return new AuthClientTwoLegged(clientId, clientSecret, scopes || this.config.scopes.internal);
 }
 
 const cache = {};
@@ -30,7 +28,7 @@ async function getToken(scopes) {
  * @returns Token object: { "access_token": "...", "expires_at": "...", "expires_in": "...", "token_type": "..." }.
  */
 async function getPublicToken() {
-  return getToken(config.scopes.public);
+  return getToken(this.config.scopes.public);
 }
 
 /**
@@ -38,7 +36,7 @@ async function getPublicToken() {
  * @returns Token object: { "access_token": "...", "expires_at": "...", "expires_in": "...", "token_type": "..." }.
  */
 async function getInternalToken() {
-  return getToken(config.scopes.internal);
+  return getToken(this.config.scopes.internal);
 }
 
 module.exports = {

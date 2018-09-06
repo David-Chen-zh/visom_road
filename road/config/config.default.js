@@ -57,5 +57,12 @@ module.exports = app => {
     public: ['viewables:read']
   };
 
+  exports.multipart = {
+    // will append to whilelist
+    fileExtensions: [
+      '.obj',
+      '.mtl',
+    ],
+  };
   return exports;
 };

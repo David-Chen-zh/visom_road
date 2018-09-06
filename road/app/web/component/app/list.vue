@@ -2,9 +2,18 @@
 <div>
 <el-row>
   <el-col :span="8">
-    <el-button type="primary" @click="createFile">创建文件夹</el-button>
-    <el-dialog :show="showDialog">
-    </el-dialog>
+    <el-button type="primary" @click="dialogVisible = true">创建文件夹</el-button>
+    <el-dialog
+  title="提示"
+  :visible.sync="dialogVisible"
+  width="30%"
+  :before-close="handleClose">
+  
+  <el-input v-model="input" placeholder="请输入文件名"></el-input>
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="createFiles">确 定</el-button>
+</el-dialog>
+    
     <el-tree
   :props="props1"
   :load="loadNode1"
@@ -13,7 +22,7 @@
 </el-tree>
   </el-col>
   <el-col :span="16">
-asd
+
   </el-col>
 </el-row>
 
@@ -31,16 +40,46 @@ asd
           children: 'zones',
           isLeaf: 'leaf'
         },
-        showDialog: false
+        dialogVisible: false,
+        input: '',
+        buckets: []
       };
     },
+    mouted() {
+      this.fetch();
+    },
     computed: {
-  
     },
   
     methods: {
-      createFile() {
-        this.showDialog = true;
+      createFiles() {
+        this.$http.post('/api/forge/oss/buckets', {
+          bucketKey: this.input,
+        }).then(res => {
+          if (res.data.errcode === 0) {
+            this.$message({
+              message: '创建成功',
+              type: 'success'
+            });
+          } else {
+            this.$message({
+              message: '创建失败',
+              type: 'warning'
+            });
+          }
+        });
+        console.log('创建文件夹', this.input);
+        this.dialogVisible = false;
+
+      },
+      handleClose() {
+  
+        this.dialogVisible = false;
+      },
+      fetch() {
+        this.$http.get('/api/forge/oss/buckets').then(res => {
+          const buckets = res.data.list;
+        });
       },
       loadNode1(node, resolve) {
         if (node.level === 0) {

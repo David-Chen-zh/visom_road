@@ -11,13 +11,12 @@ module.exports = app => {
   router.get('/api/article/:id', app.controller.app.detail);
   router.get('/*', app.controller.app.index);
 
-  router.get('/api/buckets', app.controller.buckets.list);
-  router.post('/api/buckets', app.controller.buckets.create);
+  router.post('/api/forge/oss/buckets', app.controller.buckets.create);
 
-  router.post('/api/objects', app.controller.objects.create);
+  router.post('/api/forge/oss/objects', app.controller.objects.create);
 
-  router.use('/api/jobs', app.controller.jobs.use);
-  router.post('/api/jobs', app.controller.jobs.create);
+  router.get('/api/forge/modelderivative/jobs', app.controller.jobs.use);
+  router.post('/api/forge/modelderivative/jobs', app.controller.jobs.create);
 
 
 };

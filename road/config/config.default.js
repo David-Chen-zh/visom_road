@@ -19,6 +19,12 @@ module.exports = app => {
     }
   };
 
+  exports.security = {
+    csrf: {
+      enable: false,
+    }
+  };
+
   exports.logger = {
     consoleLevel: 'DEBUG',
     dir: path.join(app.baseDir, 'logs')

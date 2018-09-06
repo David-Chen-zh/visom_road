@@ -41,16 +41,16 @@ class BucketsController extends Controller {
     }
   }
 
-  async create(req, res, next) {
+  async create(ctx) {
     const payload = new PostBucketsPayload();
-    payload.bucketKey = req.body.bucketKey;
+    payload.bucketKey = ctx.request.body.bucketKey;
     payload.policyKey = 'transient'; // expires in 24h
     try {
       // Create a bucket using [BucketsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/BucketsApi.md#createBucket).
-      await new BucketsApi().createBucket(payload, {}, req.oauth_client, req.oauth_token);
-      res.status(200).end();
+      await new BucketsApi().createBucket(payload, {}, ctx.app.getClient(), ctx.request.body.oauth_token);
+      ctx.status(200).end();
     } catch (err) {
-      next(err);
+      console.log(err);
     }
   }
 

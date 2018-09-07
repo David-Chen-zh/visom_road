@@ -1,34 +1,74 @@
 <template>
-<div>
-<el-row>
-  <el-col :span="8">
-    <el-button type="primary" @click="dialogVisible = true">创建文件夹</el-button>
-    <el-dialog
-  title="提示"
-  :visible.sync="dialogVisible"
-  width="30%"
-  :before-close="handleClose">
-  
-  <el-input v-model="input" placeholder="请输入文件名"></el-input>
-    <el-button @click="dialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="createFiles">确 定</el-button>
-</el-dialog>
-    
-    <el-tree
-  :props="buckets"
-  :load="loadNode1"
-  lazy
-  show-checkbox>
-</el-tree>
+  <div>
+    <el-row>
+      <el-col :span="8">
+        <el-button
+          type="primary"
+          @click="dialogVisible = true">创建文件夹</el-button>
+        <el-dialog
+          :visible.sync="dialogVisible"
+          :before-close="handleClose"
+          title="提示"
+          width="30%">
 
-  </el-col>
-  <el-col :span="16">
-        <div style="height: 700px; width: 100%" 
-        id="forgeViewer"></div>
-  </el-col>
-</el-row>
+          <el-input
+            v-model="input"
+            placeholder="请输入文件名"></el-input>
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button
+            type="primary"
+            @click="createFiles">确 定</el-button>
+        </el-dialog>
 
-</div>
+        <el-tree
+          :data="buckets"
+          :props="defaultProps"
+          :load="loadNode1"
+          :highlight-current="highlight"
+          lazy
+          node-key="id"
+          empty-text="暂无数据"
+          @node-click="handleNodeClick">
+          <span
+            slot-scope="{ node, data }"
+            class="custom-tree-node">
+            <span>{{ node.label }}</span>
+            <div>
+
+              <span>
+                <input
+                  id="upload"
+                  type = "file"
+                  accept=".obj"
+                  style="display:none;"
+                  @change="upload"/>
+                <el-button
+                  icon="el-icon-upload2"
+                  size="mini"
+                  circle
+                  @click="clickUpload">
+                </el-button>
+              </span>
+              <el-button
+                type="danger"
+                size="mini"
+                circle
+                icon="el-icon-delete">
+              </el-button>
+            </div>
+          </span>
+        </el-tree>
+
+
+      </el-col>
+      <el-col :span="16">
+        <div
+          id="forgeViewer"
+          style="height: 700px; width: 100%"></div>
+      </el-col>
+    </el-row>
+
+  </div>
 </template>
 <style>
 
@@ -40,34 +80,61 @@ let viewerApp;
 export default{
   data() {
     return {
-      props1: {
+      highlight: true,
+      defaultProps: {
+        children: 'bucket',
         label: 'name',
-        children: 'zones',
-        isLeaf: 'leaf'
       },
       dialogVisible: false,
+      dialogVisibleFile: false,
       input: '',
       buckets: [],
       bucket: {}
     };
   },
+  computed: {
+  },
   mounted() {
     this.fetch();
     this.selectObject();
   },
-  computed: {
-  },
   methods: {
+    clickUpload() {
+      document.getElementById('upload').click();
+    },
     createFiles() {
       this.$http.post('/api/forge/oss/buckets', {
         bucketKey: this.input,
       });
       console.log('创建文件夹', this.input);
       this.dialogVisible = false;
+      this.fetch();
     },
+
+    upload(event) {
+      console.log(12321321, event);
+      const file = event.target.files[0];
+      if (file.size < 1 * 1024 || file.size > 500 * 1024 * 1024) {
+        this.$message({
+          showClose: true,
+          message: '上传失败，文件大小范围：1K~500M',
+          type: 'warning'
+        });
+      } else {
+        this.$http.post('/api/forge/oss/objects', {
+          bucketKey: '1111111',
+          file,
+        });
+      }
+    },
+
 
     handleClose() {
       this.dialogVisible = false;
+      this.dialogVisibleFile = false;
+    },
+    handleNodeClick(data) {
+      this.information = data;
     },
 
     fetch() {
@@ -75,7 +142,8 @@ export default{
         this.buckets = [];
         res.data.forEach(ele => {
           this.buckets.push({
-            file: ele,
+            bucket: ele,
+            name: ele.text
           });
         });
       });
@@ -83,20 +151,22 @@ export default{
 
     loadNode1(node, resolve) {
       if (node.level === 0) {
-        return resolve([{ name: 'region' }]);
+        return resolve([{ name: this.bucket.name }]);
       }
       if (node.level > 1) return resolve([]);
       setTimeout(() => {
         const data = [{
           name: 'leaf',
           leaf: true
-        }, {
-          name: 'zone'
         }];
         resolve(data);
       }, 500);
     },
 
+
+    handleChange(file, fileList) {
+      this.fileList3 = fileList.slice(-3);
+    },
 
     launchViewer(urn) {
       const options = {
@@ -155,3 +225,14 @@ export default{
   }
 };
 </script>
+
+<style>
+  .custom-tree-node {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    padding-right: 8px;
+  }
+</style>

@@ -27,6 +27,7 @@ class BucketsController extends Controller {
         ctx.body = err;
       }
     } else {
+      console.log(1);
       try {
         // Retrieve objects from Forge using the [ObjectsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/ObjectsApi.md#getObjects)
         const objects = await new ObjectsApi().getObjects(bucket_name, {}, ctx.app.getClient(), ctx.request.body.oauth_token);
@@ -62,13 +63,10 @@ class BucketsController extends Controller {
 
   async createObject(ctx) {
     const stream = await this.ctx.getFileStream();
-    console.log(stream.fields);
     const filename = stream.filename;
     const target = path.join(this.config.baseDir, 'public', filename);
-    console.log(filename, target);
     const writeStream = fs.createWriteStream(target);
     await pump(stream, writeStream);
-
     try {
       const data = await readFile(target);
       console.log(data.length);
@@ -76,6 +74,7 @@ class BucketsController extends Controller {
       // Upload an object to bucket using [ObjectsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/ObjectsApi.md#uploadObject).
       await new ObjectsApi().uploadObject(stream.fields.bucketKey, filename, data.length, data, {}, ctx.app.getClient(), ctx.request.body.oauth_token);
       ctx.body = {};
+      console.log(ctx.body);
     } catch (err) {
       console.log(err);
       ctx.body = err;

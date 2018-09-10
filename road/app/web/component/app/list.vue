@@ -23,7 +23,8 @@
         <el-tree
           :data="buckets"
           :props="defaultProps"
-          :load="loadNode1"
+          :default-expanded-keys="[0]"
+          :load="loadNode"
           :highlight-current="highlight"
           lazy
           node-key="id"
@@ -33,8 +34,8 @@
             slot-scope="{ node, data }"
             class="custom-tree-node">
             <span>{{ node.label }}</span>
-            <div>
 
+            <div v-if="bucket">
               <span>
                 <input
                   id="upload"
@@ -56,6 +57,16 @@
                 icon="el-icon-delete">
               </el-button>
             </div>
+            <!-- <div v-if="object">
+              <span>
+                <el-button
+                  icon="el-icon-document"
+                  size="mini"
+                  circle
+                  @click="transplate">
+                </el-button>
+              </span>
+            </div> -->
           </span>
         </el-tree>
 
@@ -82,14 +93,17 @@ export default{
     return {
       highlight: true,
       defaultProps: {
-        children: 'bucket',
+        children: 'children',
         label: 'name',
+        isLeaf: true
       },
       dialogVisible: false,
       dialogVisibleFile: false,
       input: '',
       buckets: [],
-      bucket: {}
+      bucket: {},
+      object: {},
+      objects: []
     };
   },
   computed: {
@@ -97,6 +111,7 @@ export default{
   mounted() {
     this.fetch();
     this.selectObject();
+    this.fetchObj();
   },
   methods: {
     clickUpload() {
@@ -112,7 +127,6 @@ export default{
     },
 
     upload(event) {
-      console.log(12321321, event);
       const file = event.target.files[0];
       if (file.size < 1 * 1024 || file.size > 500 * 1024 * 1024) {
         this.$message({
@@ -121,11 +135,12 @@ export default{
           type: 'warning'
         });
       } else {
-        this.$http.post('/api/forge/oss/objects', {
-          bucketKey: '1111111',
-          file,
-        });
+        this.$http.post('/api/forge/oss/objects?id=' + this.bucket.name + '&file=' + file);
       }
+    },
+
+    translate() {
+      console.log(666);
     },
 
 
@@ -149,18 +164,33 @@ export default{
       });
     },
 
-    loadNode1(node, resolve) {
-      if (node.level === 0) {
+    fetchObj() {
+      const key = '1111111';
+      this.$http.get('/api/forge/oss/buckets?id=' + key).then(res => {
+        this.objects = [];
+        res.data.forEach(ele => {
+          this.objects.push({
+            object: ele,
+            name: ele.text
+          });
+        });
+      });
+    },
+
+    loadNode(node, resolve) {
+      if (node && node.level === 0) {
         return resolve([{ name: this.bucket.name }]);
       }
-      if (node.level > 1) return resolve([]);
-      setTimeout(() => {
-        const data = [{
-          name: 'leaf',
-          leaf: true
-        }];
-        resolve(data);
-      }, 500);
+      if (node.level === 1) {
+        // setTimeout(() => {
+        //   const data = [{
+        //     name: this.object.name,
+        //     leaf: true,
+        //   }];
+        //   resolve(data);
+        // }, 500);
+        return resolve([{ name: this.object.name }]);
+      }
     },
 
 

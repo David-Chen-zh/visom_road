@@ -27,7 +27,6 @@ class BucketsController extends Controller {
         ctx.body = err;
       }
     } else {
-      console.log(1);
       try {
         // Retrieve objects from Forge using the [ObjectsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/ObjectsApi.md#getObjects)
         const objects = await new ObjectsApi().getObjects(bucket_name, {}, ctx.app.getClient(), ctx.request.body.oauth_token);
@@ -70,11 +69,10 @@ class BucketsController extends Controller {
     try {
       const data = await readFile(target);
       console.log(data.length);
-
       // Upload an object to bucket using [ObjectsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/ObjectsApi.md#uploadObject).
       await new ObjectsApi().uploadObject(stream.fields.bucketKey, filename, data.length, data, {}, ctx.app.getClient(), ctx.request.body.oauth_token);
       ctx.body = {};
-      console.log(ctx.body);
+      console.log('上传文件成功');
     } catch (err) {
       console.log(err);
       ctx.body = err;

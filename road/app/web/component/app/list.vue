@@ -28,8 +28,7 @@
           :highlight-current="highlight"
           lazy
           node-key="id"
-          empty-text="暂无数据"
-          @node-click="handleNodeClick">
+          empty-text="暂无数据">
           <span
             slot-scope="{ node, data }"
             class="custom-tree-node">
@@ -72,11 +71,11 @@
 
 
       </el-col>
-      <el-col :span="16">
+      <!-- <el-col :span="16">
         <div
           id="forgeViewer"
           style="height: 700px; width: 100%"></div>
-      </el-col>
+      </el-col> -->
     </el-row>
 
   </div>
@@ -95,7 +94,6 @@ export default{
       defaultProps: {
         children: 'children',
         label: 'name',
-        isLeaf: true
       },
       dialogVisible: false,
       dialogVisibleFile: false,
@@ -111,7 +109,6 @@ export default{
   mounted() {
     this.fetch();
     this.selectObject();
-    this.fetchObj();
   },
   methods: {
     clickUpload() {
@@ -127,7 +124,14 @@ export default{
     },
 
     upload(event) {
+      let key;
+      for (const index in this.buckets) {
+        key = this.buckets[index].name;
+      }
       const file = event.target.files[0];
+      const pos = new FormData();
+      pos.append('file', file);
+      pos.append('bucketKey', key);
       if (file.size < 1 * 1024 || file.size > 500 * 1024 * 1024) {
         this.$message({
           showClose: true,
@@ -135,7 +139,9 @@ export default{
           type: 'warning'
         });
       } else {
-        this.$http.post('/api/forge/oss/objects?id=' + this.bucket.name + '&file=' + file);
+        this.$http.post('/api/forge/oss/objects', pos, { header: { 'Content-type': 'multipart/form-data' } }).then(res => {
+          console.log('上传文件');
+        });
       }
     },
 
@@ -147,9 +153,6 @@ export default{
     handleClose() {
       this.dialogVisible = false;
       this.dialogVisibleFile = false;
-    },
-    handleNodeClick(data) {
-      this.information = data;
     },
 
     fetch() {
@@ -164,35 +167,33 @@ export default{
       });
     },
 
-    fetchObj() {
-      const key = '1111111';
-      this.$http.get('/api/forge/oss/buckets?id=' + key).then(res => {
-        this.objects = [];
-        res.data.forEach(ele => {
-          this.objects.push({
-            object: ele,
-            name: ele.text
-          });
-        });
-      });
-    },
-
     loadNode(node, resolve) {
-      if (node && node.level === 0) {
-        return resolve([{ name: this.bucket.name }]);
+      let objName;
+      if (node && node.level === 1) {
+        this.$http.get('/api/forge/oss/buckets?id=' + node.data.name).then(res => {
+          this.objects = [];
+          res.data.forEach(ele => {
+            this.objects.push({
+              object: ele,
+              objectName: ele.text
+            });
+          });
+          for (const index in this.objects) {
+            objName = this.objects[index].objectName;
+          }
+          setTimeout(() => {
+            const data = [{
+              name: objName
+            }];
+            resolve(data);
+          }, 500);
+          return resolve([{ name: objName }]);
+        });
       }
-      if (node.level === 1) {
-        // setTimeout(() => {
-        //   const data = [{
-        //     name: this.object.name,
-        //     leaf: true,
-        //   }];
-        //   resolve(data);
-        // }, 500);
-        return resolve([{ name: this.object.name }]);
+      if (node && node.level > 1) {
+        return resolve();
       }
     },
-
 
     handleChange(file, fileList) {
       this.fileList3 = fileList.slice(-3);

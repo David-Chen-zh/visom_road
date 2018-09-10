@@ -31,5 +31,3 @@ config.local.js
 appveyor.yml
 output/*
 express/uploads/
-package.json
-.eslintrc

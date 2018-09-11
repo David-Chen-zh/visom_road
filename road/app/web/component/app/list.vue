@@ -10,7 +10,6 @@
           :before-close="handleClose"
           title="提示"
           width="30%">
-
           <el-input
             v-model="input"
             placeholder="请输入文件名"></el-input>
@@ -19,23 +18,20 @@
             type="primary"
             @click="createFiles">确 定</el-button>
         </el-dialog>
-
         <el-tree
           :data="buckets"
           :props="defaultProps"
-          :default-expanded-keys="[0]"
           :load="loadNode"
           :highlight-current="highlight"
+          :expand-on-click-node="false"
           lazy
-          node-key="id"
           empty-text="暂无数据">
           <span
             slot-scope="{ node, data }"
             class="custom-tree-node">
             <span>{{ node.label }}</span>
-
-            <div v-if="bucket">
-              <span>
+            <div>
+              <span v-if="node.parent.id === 0">
                 <input
                   id="upload"
                   type = "file"
@@ -48,36 +44,31 @@
                   circle
                   @click="clickUpload">
                 </el-button>
+                <el-button
+                  type="danger"
+                  size="mini"
+                  circle
+                  icon="el-icon-delete">
+                </el-button>
               </span>
-              <el-button
-                type="danger"
-                size="mini"
-                circle
-                icon="el-icon-delete">
-              </el-button>
-            </div>
-            <!-- <div v-if="object">
-              <span>
+              <span v-if="node.parent.id !== 0">
                 <el-button
                   icon="el-icon-document"
                   size="mini"
                   circle
-                  @click="transplate">
+                  @click="translate()">
                 </el-button>
               </span>
-            </div> -->
+            </div>
           </span>
         </el-tree>
-
-
       </el-col>
-      <!-- <el-col :span="16">
+      <el-col :span="16">
         <div
           id="forgeViewer"
           style="height: 700px; width: 100%"></div>
-      </el-col> -->
+      </el-col>
     </el-row>
-
   </div>
 </template>
 <style>
@@ -101,7 +92,10 @@ export default{
       buckets: [],
       bucket: {},
       object: {},
-      objects: []
+      objects: [],
+      files: [],
+      file: {},
+      objectName: ''
     };
   },
   computed: {
@@ -146,9 +140,32 @@ export default{
     },
 
     translate() {
-      console.log(666);
+      let fileName;
+      for (const index in this.buckets) {
+        fileName = this.buckets[index].name;
+      }
+      this.$http.get('/api/forge/oss/buckets?id=' + fileName).then(res => {
+        this.files = [];
+        res.data.forEach(ele => {
+          this.files.push({
+            file: ele,
+            name: ele.text,
+            id: ele.id
+          });
+          this.translateObject(this.files);
+        });
+      });
     },
-
+    translateObject() {
+      for (const index in this.files) {
+        this.objectName = this.files[index].id;
+      }
+      this.$http.post('/api/forge/modelderivative/jobs', {
+        objectName: this.objectName
+      }).then(res => {
+        console.log('转换文件');
+      });
+    },
 
     handleClose() {
       this.dialogVisible = false;
@@ -172,26 +189,25 @@ export default{
       if (node && node.level === 1) {
         this.$http.get('/api/forge/oss/buckets?id=' + node.data.name).then(res => {
           this.objects = [];
-          res.data.forEach(ele => {
-            this.objects.push({
-              object: ele,
-              objectName: ele.text
+          if (res.data.length !== 0) {
+            res.data.forEach(ele => {
+              this.objects.push({
+                object: ele,
+                objectName: ele.text
+              });
             });
-          });
-          for (const index in this.objects) {
-            objName = this.objects[index].objectName;
+            for (const index in this.objects) {
+              objName = this.objects[index].objectName;
+            }
+            return resolve([{ name: objName }]);
+          } else {
+            return resolve([]);
           }
-          setTimeout(() => {
-            const data = [{
-              name: objName
-            }];
-            resolve(data);
-          }, 500);
-          return resolve([{ name: objName }]);
+
         });
       }
       if (node && node.level > 1) {
-        return resolve();
+        return resolve([]);
       }
     },
 

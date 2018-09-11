@@ -44,19 +44,19 @@
                   circle
                   @click="clickUpload">
                 </el-button>
-                <el-button
+                <!-- <el-button
                   type="danger"
                   size="mini"
                   circle
                   icon="el-icon-delete">
-                </el-button>
+                </el-button> -->
               </span>
               <span v-if="node.parent.id !== 0">
                 <el-button
                   icon="el-icon-document"
                   size="mini"
                   circle
-                  @click="translate()">
+                  @click="()=> translate(node, data)">
                 </el-button>
               </span>
             </div>
@@ -102,7 +102,6 @@ export default{
   },
   mounted() {
     this.fetch();
-    this.selectObject();
   },
   methods: {
     clickUpload() {
@@ -139,11 +138,9 @@ export default{
       }
     },
 
-    translate() {
-      let fileName;
-      for (const index in this.buckets) {
-        fileName = this.buckets[index].name;
-      }
+    translate(node, data) {
+      const fileName = node.parent.data.name;
+      const text = data.name;
       this.$http.get('/api/forge/oss/buckets?id=' + fileName).then(res => {
         this.files = [];
         res.data.forEach(ele => {
@@ -152,21 +149,26 @@ export default{
             name: ele.text,
             id: ele.id
           });
-          this.translateObject(this.files);
+          for (const index in this.files) {
+            this.objectName = this.files[index].id;
+            this.objectText = this.files[index].name;
+          }
+          const urn = this.objectName;
+          if (this.objectText === text) {
+            this.$http.post('/api/forge/modelderivative/jobs', {
+              objectName: this.objectName
+            }).then(res => {
+              console.log('转换文件');
+            });
+            this.getForgeToken((access_token, expires_in) => {
+             this.$http.get('https://developer.api.autodesk.com/modelderivative/v2/designdata/' + urn + '/manifest', { headers: { Authorization: 'Bearer ' + access_token } }).then(res => {
+              this.launchViewer(urn);
+             });
+           });
+          }
         });
       });
     },
-    translateObject() {
-      for (const index in this.files) {
-        this.objectName = this.files[index].id;
-      }
-      this.$http.post('/api/forge/modelderivative/jobs', {
-        objectName: this.objectName
-      }).then(res => {
-        console.log('转换文件');
-      });
-    },
-
     handleClose() {
       this.dialogVisible = false;
       this.dialogVisibleFile = false;
@@ -260,15 +262,14 @@ export default{
       });
     },
 
-    selectObject() {
-      const urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6dGVzdGFzZGYyLzE1MzM2OTQ1MTAxNjMub2Jq';
-      this.getForgeToken((access_token, expires_in) => {
-        this.$http.get('https://developer.api.autodesk.com/modelderivative/v2/designdata/' + urn + '/manifest', { headers: { Authorization: 'Bearer ' + access_token } }).then(res => {
-          this.launchViewer(urn);
-        });
-      });
-
-    }
+    // selectObject(node, data) {
+    // const urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6dGVzdGFzZGYyLzE1MzM2OTQ1MTAxNjMub2Jq';
+    //   this.getForgeToken((access_token, expires_in) => {
+    //     this.$http.get('https://developer.api.autodesk.com/modelderivative/v2/designdata/' + urn + '/manifest', { headers: { Authorization: 'Bearer ' + access_token } }).then(res => {
+    //       this.launchViewer(urn);
+    //     });
+    //   });
+    // }
   }
 };
 </script>

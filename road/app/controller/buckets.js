@@ -48,7 +48,7 @@ class BucketsController extends Controller {
   async create(ctx) {
     const payload = new PostBucketsPayload();
     payload.bucketKey = ctx.request.body.bucketKey;
-    payload.policyKey = 'transient'; // expires in 24h
+    payload.policyKey = 'persistent'; // transient：24小时, temporary:30天, persistent:永久
     console.log(payload);
     try {
       // Create a bucket using [BucketsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/BucketsApi.md#createBucket).
